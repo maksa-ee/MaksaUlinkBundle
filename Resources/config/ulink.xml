@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="maksa_ulink.service.class">Maksa\Bundle\UlinkBundle\Service</parameter>
+    </parameters>
+
+    <services>
+        <service id="maksa_ulink.service" class="%maksa_ulink.service.class%">
+            <argument>%maksa_ulink.client_id%</argument>
+            <argument>%maksa_ulink.key_path%</argument>
+            <argument>%maksa_ulink.public_key%</argument>
+            <argument>%maksa_ulink.private_key%</argument>
+            <argument>%maksa_ulink.default_currency%</argument>
+        </service>
+    </services>
+
+</container>
