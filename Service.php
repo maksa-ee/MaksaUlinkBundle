@@ -168,17 +168,25 @@ class Service
             throw new Exception\UlinkException('Data signature does not match the packet content!');
         }
 
-        $request = \Ulink\RequestFactory::createFromJson(
-            \Ulink\CryptoUtils::unseal($packet->getRequest(), $this->getPrivateKeyPem())
-        );
+        $responseJson = \Ulink\CryptoUtils::unseal($packet->getRequest(), $this->getPrivateKeyPem());
+        $response = \Ulink\RequestFactory::createFromJson($responseJson);
 
         $result = array(
-            'clientTransactionId' => $request->getClientTransactionId(),
-            'amount'              => (string)$request->getAmount(),
-            'currency'            => $request->getCurrency(),
+            'clientTransactionId' => $response->getClientTransactionId(),
+            'amount'              => (string)$response->getAmount(),
+            'currency'            => $response->getCurrency(),
         );
 
-        $order = $request->getOrder();
+        if (\Ulink\PaymentResponse::clazz() == get_class($response)) {
+            $result = array_merge($result, array(
+                'timestamp'  => $response->getTimestamp(),
+                'success'    => $response->isSuccess(),
+                'errors'     => $response->getErrors(),
+                'errorCodes' => $response->getErrorCodes(),
+            ));
+        }
+
+        $order = $response->getOrder();
         if ($order && count($order->getItems())) {
             $items = $order->getItems();
             $result['oreder'] = array();
