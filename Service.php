@@ -108,6 +108,9 @@ class Service
         $request->setAmount(new \Ulink\Money($amount));
         $request->setCurrency($currency ? $currency : $this->getDefaultCurrency());
 
+        //$request->setResponseUrl('http://local');
+        //$request->setGoBackUrl('http://local2');
+
         if ($order && count($order)) {
             $_order = new \Ulink\Order();
             /**
@@ -177,12 +180,23 @@ class Service
             'currency'            => $response->getCurrency(),
         );
 
+        $responseUrl = $response->getResponseUrl();
+        if ($responseUrl) {
+            $result['responseUrl'] = $responseUrl;
+        }
+
+        $goBackUrl = $response->getGoBackUrl();
+        if ($goBackUrl) {
+            $result['goBackUrl'] = $goBackUrl;
+        }
+
         if (\Ulink\PaymentResponse::clazz() == get_class($response)) {
             $result = array_merge($result, array(
                 'timestamp'  => $response->getTimestamp(),
                 'success'    => $response->isSuccess(),
                 'errors'     => $response->getErrors(),
                 'errorCodes' => $response->getErrorCodes(),
+                'isTest'     => $response->isTest(),
             ));
         }
 
