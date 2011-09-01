@@ -48,6 +48,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('public_key')->defaultValue('maksa.public')->end()
                 ->scalarNode('private_key')->defaultValue('your.private')->end()
                 ->scalarNode('default_currency')->defaultValue(\Ulink\Request::CURRENCY_EURO)->end()
+                ->scalarNode('default_go_back_url')->end()
+                ->scalarNode('default_response_url')->end()
             ->end()
         ;
 

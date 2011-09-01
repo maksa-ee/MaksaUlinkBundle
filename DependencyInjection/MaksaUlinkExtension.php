@@ -57,6 +57,8 @@ class MaksaUlinkExtension extends Extension
                 'public_key',
                 'private_key',
                 'default_currency',
+                'default_go_back_url',
+                'default_response_url',
             )
         );
     }

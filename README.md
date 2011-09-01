@@ -87,13 +87,22 @@ public function registerBundles()
 
 ## Basic Usage
 
-Payment Out
+Payment Request
 
 ``` php
 $ulink   = $this->get('maksa_ulink.service');
-$rawData = $ulink->encrypt($clientTransactionId, $amount, $order, $currency);
+$rawData = $ulink->encrypt(
+    array(
+        'clientTransactionId' => '',
+        'amount'              => '0',
+        'order'               => array(),
+        'currency'            => null,
+        'goBackUrl'           => null,
+        'responseUrl'         => null,
+    )
+);
 ```
-Payment In
+Payment Response
 
 ``` php
 $ulink   = $this->get('maksa_ulink.service');
@@ -111,6 +120,8 @@ maksa_ulink:
     public_key: maksa.public
     private_key: your.private
     default_currency: EUR
+    default_go_back_url: 'http://localhost/goback'
+    default_response_url: 'http://localhost/response'
 ```
 
 There are several configuration options available:
@@ -132,3 +143,8 @@ There are several configuration options available:
  - `default_currency` - default currency.
 
     default: `EUR`
+
+ - `default_go_back_url` - default go back url.
+
+ - `default_response_url` - default response url.
+

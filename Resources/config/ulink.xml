@@ -10,11 +10,14 @@
 
     <services>
         <service id="maksa_ulink.service" class="%maksa_ulink.service.class%">
+            <argument type="service" id="service_container" />
             <argument>%maksa_ulink.client_id%</argument>
             <argument>%maksa_ulink.key_path%</argument>
             <argument>%maksa_ulink.public_key%</argument>
             <argument>%maksa_ulink.private_key%</argument>
             <argument>%maksa_ulink.default_currency%</argument>
+            <argument>%maksa_ulink.default_go_back_url%</argument>
+            <argument>%maksa_ulink.default_response_url%</argument>
         </service>
     </services>
 

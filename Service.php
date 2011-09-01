@@ -25,11 +25,17 @@
 
 namespace Maksa\Bundle\UlinkBundle;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * @author Cravler <http://github.com/cravler>
  */
 class Service
 {
+    /**
+     * $var \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    private $container;
     /**
      * @var integer
      */
@@ -46,6 +52,14 @@ class Service
      * @var string
      */
     private $defaultCurrency = null;
+    /**
+     * @var string
+     */
+    private $defaultGoBackUrl = null;
+    /**
+     * @var string
+     */
+    private $defaultResponseUrl = null;
 
     /**
      * @param integer $clientId
@@ -54,12 +68,15 @@ class Service
      * @param string $privateKey
      * @param string $defaultCurrency
      */
-    public function __construct($clientId, $keyPath, $publicKey, $privateKey, $defaultCurrency)
+    public function __construct(ContainerInterface $container, $clientId, $keyPath, $publicKey, $privateKey, $defaultCurrency, $defaultGoBackUrl, $defaultResponseUrl)
     {
-        $this->clientId        = $clientId;
-        $this->publicKeyPem    = file_get_contents($keyPath . DIRECTORY_SEPARATOR . $publicKey);
-        $this->privateKeyPem   = file_get_contents($keyPath . DIRECTORY_SEPARATOR . $privateKey);
-        $this->defaultCurrency = $defaultCurrency;
+        $this->container          = $container;
+        $this->clientId           = $clientId;
+        $this->publicKeyPem       = file_get_contents($keyPath . DIRECTORY_SEPARATOR . $publicKey);
+        $this->privateKeyPem      = file_get_contents($keyPath . DIRECTORY_SEPARATOR . $privateKey);
+        $this->defaultCurrency    = $defaultCurrency;
+        $this->defaultGoBackUrl   = $defaultGoBackUrl;
+        $this->defaultResponseUrl = $defaultResponseUrl;
     }
 
     /**
@@ -95,23 +112,49 @@ class Service
     }
 
     /**
+     * @return string
+     */
+    private function getDefaultGoBackUrl()
+    {
+        return $this->defaultGoBackUrl;
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultResponseUrl()
+    {
+        return $this->defaultResponseUrl;
+    }
+
+    /**
      * @param string $clientTransactionId
      * @param string $amount
      * @param array $order
      * @param string $currency
      * @return string
      */
-    public function encrypt($clientTransactionId, $amount, $order = array(), $currency = null)
+    public function encrypt($data = array())
     {
+        $defaults = array(
+            'clientTransactionId' => '',
+            'amount'              => '0',
+            'order'               => array(),
+            'currency'            => null,
+            'goBackUrl'           => null,
+            'responseUrl'         => null,
+        );
+
+        $data = array_merge($defaults, $data);
+
         $request = new \Ulink\PaymentRequest();
-        $request->setClientTransactionId($clientTransactionId);
-        $request->setAmount(new \Ulink\Money($amount));
-        $request->setCurrency($currency ? $currency : $this->getDefaultCurrency());
+        $request->setClientTransactionId($data['clientTransactionId']);
+        $request->setAmount(new \Ulink\Money($data['amount']));
+        $request->setCurrency($data['currency'] ? $data['currency'] : $this->getDefaultCurrency());
+        $request->setGoBackUrl($data['goBackUrl'] ? $data['goBackUrl'] : $this->getDefaultGoBackUrl());
+        $request->setResponseUrl($data['responseUrl'] ? $data['responseUrl'] : $this->getDefaultResponseUrl());
 
-        //$request->setResponseUrl('http://local');
-        //$request->setGoBackUrl('http://local2');
-
-        if ($order && count($order)) {
+        if (count($data['order'])) {
             $_order = new \Ulink\Order();
             /**
              * $item = array(
@@ -121,7 +164,7 @@ class Service
              *     'quantity'     => 5
              * );
              */
-            foreach ($order as $item) {
+            foreach ($data['order'] as $item) {
                 $_order->addItem(
                     new \Ulink\OrderItem(
                         $item['name'],
@@ -180,14 +223,14 @@ class Service
             'currency'            => $response->getCurrency(),
         );
 
-        $responseUrl = $response->getResponseUrl();
-        if ($responseUrl) {
-            $result['responseUrl'] = $responseUrl;
-        }
-
         $goBackUrl = $response->getGoBackUrl();
         if ($goBackUrl) {
             $result['goBackUrl'] = $goBackUrl;
+        }
+
+        $responseUrl = $response->getResponseUrl();
+        if ($responseUrl) {
+            $result['responseUrl'] = $responseUrl;
         }
 
         if (\Ulink\PaymentResponse::clazz() == get_class($response)) {
@@ -203,9 +246,9 @@ class Service
         $order = $response->getOrder();
         if ($order && count($order->getItems())) {
             $items = $order->getItems();
-            $result['oreder'] = array();
+            $result['order'] = array();
             foreach ($items as $item) {
-                $result['oreder'][] = array(
+                $result['order'][] = array(
                     'name'         => $item->getName(),
                     'description'  => $item->getDescription(),
                     'oneItemPrice' => (string)$item->getOneItemPrice(),
