@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2010 "Cravler", http://github.com/cravler
+ * Copyright (c) 2011 "Cravler", http://github.com/cravler
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,7 @@
 
 namespace Maksa\Bundle\UlinkBundle;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use \Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @author Cravler <http://github.com/cravler>

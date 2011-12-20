@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2010 "Cravler", http://github.com/cravler
+ * Copyright (c) 2011 "Cravler", http://github.com/cravler
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,8 +25,8 @@
 
 namespace Maksa\Bundle\UlinkBundle\DependencyInjection;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
+use \Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use \Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * @author Cravler <http://github.com/cravler>
@@ -47,7 +47,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('key_path')->defaultValue('%kernel.root_dir%/Resources/keys')->end()
                 ->scalarNode('public_key')->defaultValue('maksa.public')->end()
                 ->scalarNode('private_key')->defaultValue('your.private')->end()
-                ->scalarNode('default_currency')->defaultValue(\Ulink\Request::CURRENCY_EURO)->end()
+                ->scalarNode('default_currency')->defaultValue(\Ulink_Request::CURRENCY_EURO)->end()
                 ->scalarNode('default_go_back_url')->end()
                 ->scalarNode('default_response_url')->end()
             ->end()

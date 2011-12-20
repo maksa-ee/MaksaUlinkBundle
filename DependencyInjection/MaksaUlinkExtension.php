@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2010 "Cravler", http://github.com/cravler
+ * Copyright (c) 2011 "Cravler", http://github.com/cravler
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,10 +25,10 @@
 
 namespace Maksa\Bundle\UlinkBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader;
+use \Symfony\Component\DependencyInjection\ContainerBuilder;
+use \Symfony\Component\Config\FileLocator;
+use \Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use \Symfony\Component\DependencyInjection\Loader;
 
 /**
  * @author Cravler <http://github.com/cravler>

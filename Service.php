@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2010 "Cravler", http://github.com/cravler
+ * Copyright (c) 2011 "Cravler", http://github.com/cravler
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,7 @@
 
 namespace Maksa\Bundle\UlinkBundle;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use \Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @author Cravler <http://github.com/cravler>
@@ -37,9 +37,9 @@ class Service
      */
     private $container;
     /**
-     * @var integer
+     * @var string
      */
-    private $clientId = 0;
+    private $clientId = '';
     /**
      * @var string
      */
@@ -62,11 +62,14 @@ class Service
     private $defaultResponseUrl = null;
 
     /**
-     * @param integer $clientId
+     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+     * @param string $clientId
      * @param string $keyPath
      * @param string $publicKey
      * @param string $privateKey
      * @param string $defaultCurrency
+     * @param string $defaultGoBackUrl
+     * @param string $defaultResponseUrl
      */
     public function __construct(ContainerInterface $container, $clientId, $keyPath, $publicKey, $privateKey, $defaultCurrency, $defaultGoBackUrl, $defaultResponseUrl)
     {
@@ -80,7 +83,7 @@ class Service
     }
 
     /**
-     * @return integer
+     * @return string
      */
     private function getClientId()
     {
@@ -128,10 +131,7 @@ class Service
     }
 
     /**
-     * @param string $clientTransactionId
-     * @param string $amount
-     * @param array $order
-     * @param string $currency
+     * @param array $data
      * @return string
      */
     public function encrypt($data = array())
@@ -147,15 +147,15 @@ class Service
 
         $data = array_merge($defaults, $data);
 
-        $request = new \Ulink\PaymentRequest();
+        $request = new \Ulink_PaymentRequest();
         $request->setClientTransactionId($data['clientTransactionId']);
-        $request->setAmount(new \Ulink\Money($data['amount']));
+        $request->setAmount(new \Ulink_Money($data['amount']));
         $request->setCurrency($data['currency'] ? $data['currency'] : $this->getDefaultCurrency());
         $request->setGoBackUrl($data['goBackUrl'] ? $data['goBackUrl'] : $this->getDefaultGoBackUrl());
         $request->setResponseUrl($data['responseUrl'] ? $data['responseUrl'] : $this->getDefaultResponseUrl());
 
         if (count($data['order'])) {
-            $_order = new \Ulink\Order();
+            $_order = new \Ulink_Order();
             /**
              * $item = array(
              *     'name'         => 'Some Name',
@@ -166,10 +166,10 @@ class Service
              */
             foreach ($data['order'] as $item) {
                 $_order->addItem(
-                    new \Ulink\OrderItem(
+                    new \Ulink_OrderItem(
                         $item['name'],
                         $item['description'],
-                        new \Ulink\Money($item['oneItemPrice']),
+                        new \Ulink_Money($item['oneItemPrice']),
                         (isset($item['quantity']) ? $item['quantity'] : 1)
                     )
                 );
@@ -178,10 +178,11 @@ class Service
         }
 
         $requestJson = $request->toJson();
-        $requestJson = \Ulink\CryptoUtils::seal($requestJson, $this->getPublicKeyPem());
-        $packet      = new \Ulink\TransportPacket();
+
+        $requestJson = \Ulink_CryptoUtils::seal($requestJson, $this->getPublicKeyPem());
+        $packet      = new \Ulink_TransportPacket();
         $packet->setRequest($requestJson);
-        $signature   = \Ulink\CryptoUtils::sign($requestJson, $this->getPrivateKeyPem());
+        $signature   = \Ulink_CryptoUtils::sign($requestJson, $this->getPrivateKeyPem());
 
         $packet->setSignature($signature);
         $packet->setClientId($this->getClientId());
@@ -196,7 +197,7 @@ class Service
      */
     public function decrypt($rawData)
     {
-        $packet = \Ulink\TransportPacket::createFromJson($rawData);
+        $packet = \Ulink_TransportPacket::createFromJson($rawData);
 
         if (!$packet) {
             throw new Exception\UlinkException('Can not decrypt packet!');
@@ -214,8 +215,8 @@ class Service
             throw new Exception\UlinkException('Data signature does not match the packet content!');
         }
 
-        $responseJson = \Ulink\CryptoUtils::unseal($packet->getRequest(), $this->getPrivateKeyPem());
-        $response = \Ulink\RequestFactory::createFromJson($responseJson);
+        $responseJson = \Ulink_CryptoUtils::unseal($packet->getRequest(), $this->getPrivateKeyPem());
+        $response = \Ulink_RequestFactory::createFromJson($responseJson);
 
         $result = array(
             'clientTransactionId' => $response->getClientTransactionId(),
@@ -233,7 +234,7 @@ class Service
             $result['responseUrl'] = $responseUrl;
         }
 
-        if (\Ulink\PaymentResponse::clazz() == get_class($response)) {
+        if (\Ulink_PaymentResponse::clazz() == get_class($response)) {
             $result = array_merge($result, array(
                 'timestamp'  => $response->getTimestamp(),
                 'success'    => $response->isSuccess(),

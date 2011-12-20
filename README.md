@@ -62,8 +62,13 @@ Add the following entries to your autoloader:
 $loader->registerNamespaces(array(
     // ...
 
-    'Ulink' => __DIR__.'/../vendor/ulink/src',
     'Maksa' => __DIR__.'/../vendor/bundles',
+));
+
+$loader->registerPrefixes(array(
+    // ...
+
+    'Ulink_' => __DIR__.'/../vendor/ulink/src',
 ));
 ```
 
